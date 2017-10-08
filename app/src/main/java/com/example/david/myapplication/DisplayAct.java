@@ -164,6 +164,7 @@ public class DisplayAct extends Activity {
                             float altitudes[]=mydb.getaltitudes(trackid);
                             int timestamps[]=mydb.gettimestamps(trackid);
                             int HR[]=mydb.getHR(trackid);
+                            int j=0;
                             for(int i=0;i<timestamps.length;i++)
                             {
                                 Date dateformatpoint = new Date(timestamps[i]*1000L);
@@ -187,7 +188,8 @@ public class DisplayAct extends Activity {
                                 writer.println("    <time>"+yearpoint+"-"+monthpoint+"-"+daypoint+"T"+hourpoint+":"+minutepoint+":"+secondpoint+".000Z</time>");
                                 writer.println("    <extensions>");
                                 writer.println("     <gpxtpx:TrackPointExtension>");
-                                writer.println(" 	 <gpxtpx:hr>"+HR[i]+"</gpxtpx:hr>");
+                                if(i< HR.length)
+                                    writer.println(" 	 <gpxtpx:hr>"+HR[i]+"</gpxtpx:hr>");
                                 writer.println("     </gpxtpx:TrackPointExtension>");
                                 writer.println("    </extensions>");
                                 writer.println("   </trkpt>");
