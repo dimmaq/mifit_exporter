@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Mifit exporter</string>
+    <string name="Add_New">Añadir nuevo</string>
+    <string name="Date">Fecha</string>
+    <string name="Length">Duración</string>
+    <string name="action_settings">Opciones</string>
+    <string name="actividad">Actividad</string>
+    <string name="activity">Actividad</string>
+    <string name="export">Exportar a GPX</string>
+    <string name="openmifit">Si tu track no aparece aqui, necesitas sincronizar Amazfit con MiFit y después, abrir ese track en MiFit</string>
+    <string name="no"></string>
+    <string name="yes">Si</string>
+    <string name="donating">¿Te gusta mi primera APP? Una donación sería bienvenida</string>
+    <string name="Exported">Archivo exportado a:</string>
+</resources>

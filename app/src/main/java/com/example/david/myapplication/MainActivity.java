@@ -134,7 +134,13 @@ public class MainActivity extends Activity {
             db.opendb();
             ArrayList array_list = db.getAllTracks();
             ArrayAdapter arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, array_list);
-
+            ImageView donate = (ImageView) findViewById(R.id.paypaldonate);
+            donate.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.paypal.me/dvdest"));
+                    startActivity(browserIntent);
+                }
+            });
             obj = (ListView) findViewById(R.id.listView1);
             obj.setAdapter(arrayAdapter);
         } else {

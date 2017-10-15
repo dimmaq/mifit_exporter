@@ -199,7 +199,7 @@ public class DisplayAct extends Activity {
                             writer.println(" </trk>");
                             writer.println("</gpx>");
                         writer.close();
-                            donex.setText((CharSequence)"File exported to: ");
+                            donex.setText(getString(R.string.Exported));
                             donex.setFocusable(false);
                             donex.setClickable(false);
                             donex.setVisibility(View.VISIBLE);
