@@ -101,7 +101,7 @@ public class DBhelper extends SQLiteOpenHelper {
         }
         return array_list;
     }
-    public float[] getlatitudes(int trackid)
+    public long[] getlatitudes(int trackid)
     {
         //SQLiteDatabase db = this.getReadableDatabase();
         String latlongstring;
@@ -111,20 +111,20 @@ public class DBhelper extends SQLiteOpenHelper {
         res.moveToFirst();
         latlongstring= res.getString(res.getColumnIndex("BULKLL"));
         String[] latlongs=latlongstring.split(";");
-        float[] latlist = new float[latlongs.length];
+        long[] latlist = new long[latlongs.length];
 
         int j = 0;
         for (int i = 0; i < latlongs.length; i++) {
             String latlongs_sub[]= latlongs[i].split(",");
 
                 if(i == 0) {
-                    latlist[j] = Float.parseFloat(latlongs_sub[0]) / 100000000;
+                    latlist[j] = Long.parseLong(latlongs_sub[0]);
                 }
                 else
                 {
-                    float previous=latlist[j-1];
+                    long previous=latlist[j-1];
 
-                    float diff=Float.parseFloat(latlongs_sub[0]) / 100000000;
+                    long diff=Long.parseLong(latlongs_sub[0]);
                     latlist[j] = previous+diff;
                 }
                 j++;
@@ -134,7 +134,7 @@ public class DBhelper extends SQLiteOpenHelper {
 
         return latlist;
     }
-    public float[] getlongitudes(int trackid)
+    public long[] getlongitudes(int trackid)
     {
         //SQLiteDatabase db = this.getReadableDatabase();
         String latlongstring;
@@ -144,19 +144,19 @@ public class DBhelper extends SQLiteOpenHelper {
         res.moveToFirst();
         latlongstring= res.getString(res.getColumnIndex("BULKLL"));
         String[] latlongs=latlongstring.split(";");
-        float[] longlist = new float[latlongs.length];
+        long[] longlist = new long[latlongs.length];
         int j = 0;
         for (int i = 0; i < latlongs.length; i++) {
             String latlongs_sub[]= latlongs[i].split(",");
 
                 if(i == 0) {
-                    longlist[j] = Float.parseFloat(latlongs_sub[1]) / 100000000;
+                    longlist[j] = Long.parseLong(latlongs_sub[1]);
                 }
                 else
                 {
-                    float previous=longlist[j-1];
+                    long previous=longlist[j-1];
 
-                    float diff=Float.parseFloat(latlongs_sub[1]) / 100000000;
+                    long diff=Long.parseLong(latlongs_sub[1]);
                     longlist[j] = previous+diff;
                 }
                 j++;

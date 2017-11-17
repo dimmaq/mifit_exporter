@@ -159,9 +159,9 @@ public class DisplayAct extends Activity {
                             writer.println(" </metadata>");
                             writer.println(" <trk>");
                             writer.println("  <trkseg>");
-                            float latitudes[]= mydb.getlatitudes(trackid);
-                            float longitudes[]=mydb.getlongitudes(trackid);
-                            float altitudes[]=mydb.getaltitudes(trackid);
+                            long latitudes[]= mydb.getlatitudes(trackid);
+                            long longitudes[]=mydb.getlongitudes(trackid);
+                            long altitudes[]=mydb.getaltitudes(trackid);
                             int timestamps[]=mydb.gettimestamps(trackid);
                             int HR[]=mydb.getHR(trackid);
                             int j=0;
@@ -182,9 +182,9 @@ public class DisplayAct extends Activity {
                                 final String minutepoint = sdf2point.format(dateformatpoint);
                                 sdf2point = new SimpleDateFormat("ss");
                                 final String secondpoint = sdf2point.format(dateformatpoint);
-                                writer.println("   <trkpt lon='"+longitudes[i]+"' lat='"+latitudes[i]+"'>");
+                                writer.println("   <trkpt lon='"+longitudes[i] / 100000000.0 +"' lat='"+latitudes[i] / 100000000.0 +"'>");
                                 if(altitudes[i] != -200000.0)
-                                    writer.println("    <ele>"+altitudes[i]/10+"</ele>");
+                                    writer.println("    <ele>"+altitudes[i]/10.0+"</ele>");
                                 writer.println("    <time>"+yearpoint+"-"+monthpoint+"-"+daypoint+"T"+hourpoint+":"+minutepoint+":"+secondpoint+".000Z</time>");
                                 writer.println("    <extensions>");
                                 writer.println("     <gpxtpx:TrackPointExtension>");
