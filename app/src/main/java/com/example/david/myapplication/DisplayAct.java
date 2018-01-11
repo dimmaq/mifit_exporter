@@ -185,7 +185,7 @@ public class DisplayAct extends Activity {
                                 writer.println("   <trkpt lon='"+longitudes[i] / 100000000.0 +"' lat='"+latitudes[i] / 100000000.0 +"'>");
                                 if(altitudes[i] != -200000.0)
                                     writer.println("    <ele>"+altitudes[i]/10.0+"</ele>");
-                                writer.println("    <time>"+yearpoint+"-"+monthpoint+"-"+daypoint+"T"+hourpoint+":"+minutepoint+":"+secondpoint+".000Z</time>");
+                                writer.println("    <time>"+yearpoint+"-"+monthpoint+"-"+daypoint+"T"+hourpoint+":"+minutepoint+":"+secondpoint+".000Z+05</time>");
                                 writer.println("    <extensions>");
                                 writer.println("     <gpxtpx:TrackPointExtension>");
                                 if(i< HR.length)

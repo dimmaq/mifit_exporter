@@ -94,7 +94,7 @@ public class DBhelper extends SQLiteOpenHelper {
             }
             Date date = new Date(res.getInt(res.getColumnIndex(TRACKINGS_COLUMN_NAME))*1000L);
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // the format of your date
-            sdf.setTimeZone(TimeZone.getTimeZone("GMT+1")); // give a timezone reference for formating (see comment at the bottom
+            sdf.setTimeZone(TimeZone.getTimeZone("GMT+5")); // give a timezone reference for formating (see comment at the bottom
             String formattedDate = sdf.format(date);
             array_list.add(activity + formattedDate);
             res.moveToNext();
