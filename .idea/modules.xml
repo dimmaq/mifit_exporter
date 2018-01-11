@@ -2,8 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/MiFitExporter.iml" filepath="$PROJECT_DIR$/MiFitExporter.iml" />
+      <module fileurl="file://C:\Users\p.shuchalov\StudioProjects\mifit_exporter\MiFitExporter.iml" filepath="C:\Users\p.shuchalov\StudioProjects\mifit_exporter\MiFitExporter.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://C:\Users\p.shuchalov\StudioProjects\mifit_exporter\app\app.iml" filepath="C:\Users\p.shuchalov\StudioProjects\mifit_exporter\app\app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mifit_exporter.iml" filepath="$PROJECT_DIR$/mifit_exporter.iml" />
     </modules>
   </component>
 </project>
