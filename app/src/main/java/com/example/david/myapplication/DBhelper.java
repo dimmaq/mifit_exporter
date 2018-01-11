@@ -166,7 +166,7 @@ public class DBhelper extends SQLiteOpenHelper {
 
         return longlist;
     }
-    public float[] getaltitudes(int trackid)
+    public long[] getaltitudes(int trackid)
     {
         //SQLiteDatabase db = this.getReadableDatabase();
         String altstring;
@@ -175,11 +175,11 @@ public class DBhelper extends SQLiteOpenHelper {
         res.moveToFirst();
         altstring= res.getString(res.getColumnIndex("BULKAL"));
         String[] alts=altstring.split(";");
-        float[] altlist = new float[alts.length];
+        long[] altlist = new long[alts.length];
         int j = 0;
         j = 0;
         for (int i = 0; i < alts.length; i++) {
-                    altlist[i] = Float.parseFloat(alts[i]) / 10;
+                    altlist[i] = Long.parseLong(alts[i]) / 10;
                 }
 
 
