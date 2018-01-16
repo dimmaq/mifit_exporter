@@ -63,19 +63,24 @@ public class DBhelper extends SQLiteOpenHelper {
         ArrayList<Point> points_list = new ArrayList<Point>();
         Cursor res =  db.rawQuery( "select * from TRACKDATA where TRACKID="+trackid+"", null );
         res.moveToFirst();
-        int size = res.getInt(res.getColumnIndex("SIZE"));
         String lldata = res.getString(res.getColumnIndex("BULKLL"));
         String altdata = res.getString(res.getColumnIndex("BULKAL"));
         String timedata = res.getString(res.getColumnIndex("BULKTIME"));
         String hrdata = res.getString(res.getColumnIndex("BULKHR"));
 
         String[] timestrings = timedata.split(";");
+        // int size = res.getInt(res.getColumnIndex("SIZE")); When data received from MiFit account, no Size is set in table
+        int size = timestrings.length;
         int[] timestamps = new int[size];
         int timediff = 0;
         timestamps[0] = trackid;
         for(int i = 1; i < size; i++) {
             timediff = Integer.parseInt(timestrings[i]);
             if(timediff == 0 && i < 31) {
+                timediff = 1;
+            }
+            else if(timediff == 0 && (timestamps[i-1] - timestamps[i-2]) == 2) {
+                timestamps[i-1] = timestamps[i-2] + 1;
                 timediff = 1;
             }
             timestamps[i] = timestamps[i - 1] + timediff;
@@ -107,24 +112,26 @@ public class DBhelper extends SQLiteOpenHelper {
         int[] hrs = new int[size];
         boolean[] hasHrs = new boolean[size];
         int hr_cur = 0;
-        for(int i = 0; i < hrstrings.length; i++) {
+        for(int i = 0; i < hrstrings.length && hr_cur < size; i++) {
             String hr_subs[]= hrstrings[i].split(",");
-            int shift = 1;
             int hrValue = Integer.parseInt(hr_subs[1]);
+            int shift = 1;
+            if(hr_subs[0].length() > 0)
+                shift = Integer.parseInt(hr_subs[0]);
             if(i == 0) {
-                shift = 0;
                 hrs[0] = hrValue;
+                hasHrs[0] = false;
+                hr_cur++;
+                shift--;
             }
-            else {
-                if(hr_subs[0].length() > 0)
-                    shift = Integer.parseInt(hr_subs[0]);
-                hasHrs[hr_cur] = true;
-                hrs[hr_cur] = hrs[hr_cur - 1] + hrValue;
-            }
-            hr_cur++;
-            for (int j = 1; j < shift; j++) {
-                hasHrs[hr_cur] = false;
+            for (int j = 1; j < shift && hr_cur < size; j++) {
                 hrs[hr_cur] = hrs[hr_cur - 1];
+                hasHrs[hr_cur] = false;
+                hr_cur++;
+            }
+            if(i != 0 && hr_cur < size) {
+                hrs[hr_cur] = hrs[hr_cur - 1] + hrValue;
+                hasHrs[hr_cur] = true;
                 hr_cur++;
             }
         }
