@@ -34,7 +34,6 @@ public class DBhelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
 
 
-
     }
     public void opendb(){
         db=openOrCreateDatabase(DATABASE_NAME,null);
@@ -43,8 +42,6 @@ public class DBhelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
     }
-
-
 
     public Cursor getData() {
         //SQLiteDatabase db = this.getReadableDatabase();
@@ -62,6 +59,87 @@ public class DBhelper extends SQLiteOpenHelper {
         return numRows;
     }
 
+    public ArrayList<Point> getPoints(int trackid) {
+        ArrayList<Point> points_list = new ArrayList<Point>();
+        Cursor res =  db.rawQuery( "select * from TRACKDATA where TRACKID="+trackid+"", null );
+        res.moveToFirst();
+        int size = res.getInt(res.getColumnIndex("SIZE"));
+        String lldata = res.getString(res.getColumnIndex("BULKLL"));
+        String altdata = res.getString(res.getColumnIndex("BULKAL"));
+        String timedata = res.getString(res.getColumnIndex("BULKTIME"));
+        String hrdata = res.getString(res.getColumnIndex("BULKHR"));
+
+        String[] timestrings = timedata.split(";");
+        int[] timestamps = new int[size];
+        int timediff = 0;
+        timestamps[0] = trackid;
+        for(int i = 1; i < size; i++) {
+            timediff = Integer.parseInt(timestrings[i]);
+            if(timediff == 0 && i < 31) {
+                timediff = 1;
+            }
+            timestamps[i] = timestamps[i - 1] + timediff;
+        }
+
+        String[] latlonstrings = lldata.split(";");
+        long[] lats = new long[size];
+        long[] lons = new long[size];
+        for (int i = 0; i < size; i++) {
+            String latlongs_sub[]= latlonstrings[i].split(",");
+            if(i == 0) {
+                lats[i] = Long.parseLong(latlongs_sub[0]);
+                lons[i] = Long.parseLong(latlongs_sub[1]);
+            }
+            else
+            {
+                lats[i] = Long.parseLong(latlongs_sub[0]) + lats[i-1];
+                lons[i] = Long.parseLong(latlongs_sub[1]) + lons[i-1];
+            }
+        }
+
+        String[] altstrings = altdata.split(";");
+        long[] alts = new long[size];
+        for(int i = 0; i < size; i++) {
+            alts[i] = Integer.parseInt(altstrings[i]) / 10;
+        }
+
+        String[] hrstrings = hrdata.split(";");
+        int[] hrs = new int[size];
+        boolean[] hasHrs = new boolean[size];
+        int hr_cur = 0;
+        for(int i = 0; i < hrstrings.length; i++) {
+            String hr_subs[]= hrstrings[i].split(",");
+            int shift = 1;
+            int hrValue = Integer.parseInt(hr_subs[1]);
+            if(i == 0) {
+                shift = 0;
+                hrs[0] = hrValue;
+            }
+            else {
+                if(hr_subs[0].length() > 0)
+                    shift = Integer.parseInt(hr_subs[0]);
+                hasHrs[hr_cur] = true;
+                hrs[hr_cur] = hrs[hr_cur - 1] + hrValue;
+            }
+            hr_cur++;
+            for (int j = 1; j < shift; j++) {
+                hasHrs[hr_cur] = false;
+                hrs[hr_cur] = hrs[hr_cur - 1];
+                hr_cur++;
+            }
+        }
+
+        for(int i = 0; i < size; i++) {
+            if(hasHrs[i]) {
+                points_list.add(new Point(timestamps[i], lats[i], lons[i], alts[i], hrs[i]));
+            }
+            else {
+                points_list.add(new Point(timestamps[i], lats[i], lons[i], alts[i]));
+            }
+        }
+
+        return points_list;
+    }
 
     public ArrayList<String> getAllTracks() {
         ArrayList<String> array_list = new ArrayList<String>();
@@ -179,7 +257,7 @@ public class DBhelper extends SQLiteOpenHelper {
         int j = 0;
         j = 0;
         for (int i = 0; i < alts.length; i++) {
-                    altlist[i] = Long.parseLong(alts[i]) / 10;
+                    altlist[i] = Long.parseLong(alts[i]);
                 }
 
 

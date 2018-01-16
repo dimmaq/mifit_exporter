@@ -37,20 +37,22 @@
 
 
     <TextView
-        android:paddingTop="1dp"
-        android:text="@string/donating"
-        android:layout_gravity="center"
+        android:id="@+id/donationtext"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/donationtext"></TextView>
+        android:layout_gravity="center"
+        android:paddingTop="1dp"
+        android:text="@string/donating"
+        android:visibility="invisible"></TextView>
 
 
     <ImageView
+        android:id="@+id/paypaldonate"
         android:layout_width="298dp"
         android:layout_height="64dp"
-        android:background="@mipmap/paypaldonate"
         android:layout_gravity="center"
-        android:id="@+id/paypaldonate"
         android:adjustViewBounds="false"
-        android:cropToPadding="false" />
+        android:background="@mipmap/paypaldonate"
+        android:cropToPadding="false"
+        android:visibility="invisible" />
 </LinearLayout>

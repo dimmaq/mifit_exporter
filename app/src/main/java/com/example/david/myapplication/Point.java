@@ -25,4 +25,28 @@ public class Point {
         this.hr = hr;
         this.hasHR = true;
     }
+
+    public int getTimestamp() {
+        return timestamp;
+    }
+
+    public long getLat() {
+        return lat;
+    }
+
+    public long getLon() {
+        return lon;
+    }
+
+    public long getAlt() {
+        return alt;
+    }
+
+    public boolean isHasHR() {
+        return hasHR;
+    }
+
+    public int getHr() {
+        return hr;
+    }
 }

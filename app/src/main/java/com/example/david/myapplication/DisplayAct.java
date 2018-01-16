@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.TimeZone;
 
 import static com.example.david.myapplication.DBhelper.TRACKINGS_COLUMN_NAME;
@@ -72,10 +73,10 @@ public class DisplayAct extends Activity {
                 //rs.moveToFirst();
                 Date dateformat = new Date(rs.getInt(rs.getColumnIndex(TRACKINGS_COLUMN_NAME))*1000L);
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z"); // the format of your date
-                sdf.setTimeZone(TimeZone.getTimeZone("GMT+1")); // give a timezone reference for formating (see comment at the bottom
+                sdf.setTimeZone(TimeZone.getTimeZone("GMT+5")); // give a timezone reference for formating (see comment at the bottom
                 String date = sdf.format(dateformat);
                 SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss"); // the format of your date
-                sdf2.setTimeZone(TimeZone.getTimeZone("GMT+1")); // give a timezone reference for formating (see comment at the bottom
+                sdf2.setTimeZone(TimeZone.getTimeZone("GMT+5")); // give a timezone reference for formating (see comment at the bottom
                 final String date2 = sdf2.format(dateformat);
                 sdf2 = new SimpleDateFormat("yyyy");
                 final String year = sdf2.format(dateformat);
@@ -159,15 +160,12 @@ public class DisplayAct extends Activity {
                             writer.println(" </metadata>");
                             writer.println(" <trk>");
                             writer.println("  <trkseg>");
-                            long latitudes[]= mydb.getlatitudes(trackid);
-                            long longitudes[]=mydb.getlongitudes(trackid);
-                            long altitudes[]=mydb.getaltitudes(trackid);
-                            int timestamps[]=mydb.gettimestamps(trackid);
-                            int HR[]=mydb.getHR(trackid);
+                            ArrayList<Point> points = mydb.getPoints(trackid);
+
                             int j=0;
-                            for(int i=0;i<timestamps.length;i++)
+                            for(Point p : points)
                             {
-                                Date dateformatpoint = new Date(timestamps[i]*1000L);
+                                Date dateformatpoint = new Date(p.getTimestamp() * 1000L);
                                 SimpleDateFormat sdf2point = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss"); // the format of your date
                                 sdf2point.setTimeZone(TimeZone.getTimeZone("GMT+1")); // give a timezone reference for formating (see comment at the bottom
                                 sdf2point = new SimpleDateFormat("yyyy");
@@ -182,14 +180,14 @@ public class DisplayAct extends Activity {
                                 final String minutepoint = sdf2point.format(dateformatpoint);
                                 sdf2point = new SimpleDateFormat("ss");
                                 final String secondpoint = sdf2point.format(dateformatpoint);
-                                writer.println("   <trkpt lon='"+longitudes[i] / 100000000.0 +"' lat='"+latitudes[i] / 100000000.0 +"'>");
-                                if(altitudes[i] != -200000.0)
-                                    writer.println("    <ele>"+altitudes[i]/10.0+"</ele>");
-                                writer.println("    <time>"+yearpoint+"-"+monthpoint+"-"+daypoint+"T"+hourpoint+":"+minutepoint+":"+secondpoint+".000Z+05</time>");
+                                writer.println("   <trkpt lon='"+p.getLon() / 100000000.0 +"' lat='"+p.getLat() / 100000000.0 +"'>");
+                                if(p.getAlt() != -200000.0)
+                                    writer.println("    <ele>"+p.getAlt()/10.0+"</ele>");
+                                writer.println("    <time>"+yearpoint+"-"+monthpoint+"-"+daypoint+"T"+hourpoint+":"+minutepoint+":"+secondpoint+".000Z</time>");
                                 writer.println("    <extensions>");
                                 writer.println("     <gpxtpx:TrackPointExtension>");
-                                if(i< HR.length)
-                                    writer.println(" 	 <gpxtpx:hr>"+HR[i]+"</gpxtpx:hr>");
+                                if(p.isHasHR())
+                                    writer.println(" 	 <gpxtpx:hr>"+p.getHr()+"</gpxtpx:hr>");
                                 writer.println("     </gpxtpx:TrackPointExtension>");
                                 writer.println("    </extensions>");
                                 writer.println("   </trkpt>");
