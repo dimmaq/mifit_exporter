@@ -156,7 +156,7 @@ public class DisplayAct extends Activity {
                             writer.println("  <link href='https://github.com/botmakerdvd/amazfit_exporter'>");
                             writer.println("    <text>Amazfit exporter</text>");
                             writer.println("  </link>");
-                            writer.println("  <time>"+year+"-"+month+"-"+day+"T"+hour+":"+minute+":"+second+".000Z</time>");
+                            writer.println("  <time>"+year+"-"+month+"-"+day+"T"+hour+":"+minute+":"+second+".000+05:00</time>");
                             writer.println(" </metadata>");
                             writer.println(" <trk>");
                             writer.println("  <trkseg>");
@@ -183,7 +183,7 @@ public class DisplayAct extends Activity {
                                 writer.println("   <trkpt lon='"+p.getLon() / 100000000.0 +"' lat='"+p.getLat() / 100000000.0 +"'>");
                                 if(p.getAlt() != -200000.0)
                                     writer.println("    <ele>"+p.getAlt()/10.0+"</ele>");
-                                writer.println("    <time>"+yearpoint+"-"+monthpoint+"-"+daypoint+"T"+hourpoint+":"+minutepoint+":"+secondpoint+".000Z</time>");
+                                writer.println("    <time>"+yearpoint+"-"+monthpoint+"-"+daypoint+"T"+hourpoint+":"+minutepoint+":"+secondpoint+".000+05:00</time>");
                                 writer.println("    <extensions>");
                                 writer.println("     <gpxtpx:TrackPointExtension>");
                                 if(p.isHasHR())
