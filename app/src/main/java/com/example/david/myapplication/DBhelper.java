@@ -79,7 +79,14 @@ public class DBhelper extends SQLiteOpenHelper {
             if(timediff == 0 && i < 31) {
                 timediff = 1;
             }
+            // 2;0 situations to 1;1
             else if(timediff == 0 && (timestamps[i-1] - timestamps[i-2]) == 2) {
+                timestamps[i-1] = timestamps[i-2] + 1;
+                timediff = 1;
+            }
+            // 2;1;0 situations to 1;1;1
+            else if(timediff == 0 && (timestamps[i-1] - timestamps[i-2]) == 1 && (timestamps[i-2] - timestamps[i-3]) == 2) {
+                timestamps[i-2] = timestamps[i-3] + 1;
                 timestamps[i-1] = timestamps[i-2] + 1;
                 timediff = 1;
             }
