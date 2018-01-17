@@ -83,6 +83,8 @@ public class DBhelper extends SQLiteOpenHelper {
                 timestamps[i-1] = timestamps[i-2] + 1;
                 timediff = 1;
             }
+            else if(timediff == 0)
+                timediff = 1;
             timestamps[i] = timestamps[i - 1] + timediff;
         }
 
