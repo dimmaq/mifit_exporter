@@ -4,6 +4,7 @@
 <string name="title_activity_display_contact">DisplayContact</string>
 <string name="activity">Activity</string>
 <string name="export">Export to GPX</string>
+    <string name="exportTcx">Export to TCX</string>
 <string name="deleteContact">Are you sure, you want to delete it.</string>
 <string name="yes">Yes</string>
 <string name="no">No</string>

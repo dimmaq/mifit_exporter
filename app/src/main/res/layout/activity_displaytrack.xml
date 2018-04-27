@@ -80,16 +80,37 @@
             android:layout_alignRight="@+id/editTextdate"
             android:layout_alignEnd="@+id/editTextdate" />
 
-        <Button
-            android:id="@+id/exportbutton"
-            android:layout_width="wrap_content"
+
+        <LinearLayout
+            android:id="@+id/btnlay"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="export"
-            android:text="@string/export"
-            android:layout_below="@+id/editTextlength"
             android:layout_alignLeft="@+id/editTextactivity"
             android:layout_alignStart="@+id/editTextactivity"
-            android:layout_marginTop="26dp" />
+            android:layout_below="@+id/editTextlength"
+            android:layout_marginTop="26dp"
+            android:orientation="vertical"
+
+            >
+
+            <Button
+                android:id="@+id/exportbutton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="export"
+                android:text="@string/export" />
+
+            <Button
+                android:id="@+id/exporttcxbutton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="ExportTcxClick"
+                android:text="@string/exportTcx"
+
+                />
+
+        </LinearLayout>
+
 
         <EditText
             android:id="@+id/editTextDone"
@@ -97,7 +118,7 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="text"
-            android:layout_below="@+id/exportbutton"
+            android:layout_below="@+id/btnlay"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_alignParentRight="true"
@@ -113,5 +134,7 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true" />
+
+
     </RelativeLayout>
 </ScrollView>

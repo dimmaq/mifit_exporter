@@ -24,6 +24,9 @@ public class DBhelper extends SQLiteOpenHelper {
     public static final String TRACKINGS_COLUMN_NAME = "TRACKID";
     public static final String ACTIVITY_COLUMN_NAME = "TYPE";
     public static final String ENDTIME_COLUMN_NAME = "ENDTIME";
+    public static final String DISTANCE_COLUMN_NAME = "DISTANCE";
+    public static final String CAL_COLUMN_NAME = "CAL";
+    public static final String AVGHR_COLUMN_NAME = "AVGHR";
     private HashMap hp;
     public SQLiteDatabase db;
     public DBhelper(Context context) {

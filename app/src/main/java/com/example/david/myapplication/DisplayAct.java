@@ -57,7 +57,7 @@ public class DisplayAct extends Activity {
         donexpath.setFocusable(false);
         donexpath.setClickable(false);
         donexpath.setVisibility(View.INVISIBLE);
-        String activity;
+        final String activity;
         export = (Button) findViewById(R.id.exportbutton);
         mydb = new DBhelper(this);
         mydb.opendb();
@@ -71,13 +71,16 @@ public class DisplayAct extends Activity {
                 rs.moveToPosition(Value-1);
                 //id_To_Update = Value;
                 //rs.moveToFirst();
-                Date dateformat = new Date(rs.getInt(rs.getColumnIndex(TRACKINGS_COLUMN_NAME))*1000L);
+                final Date dateformat = new Date(rs.getInt(rs.getColumnIndex(TRACKINGS_COLUMN_NAME))*1000L);
+
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z"); // the format of your date
-                sdf.setTimeZone(TimeZone.getTimeZone("GMT+5")); // give a timezone reference for formating (see comment at the bottom
-                String date = sdf.format(dateformat);
+                //sdf.setTimeZone(TimeZone.getTimeZone("GMT+5")); // give a timezone reference for formating (see comment at the bottom
+                final String date = sdf.format(dateformat);
                 SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss"); // the format of your date
-                sdf2.setTimeZone(TimeZone.getTimeZone("GMT+5")); // give a timezone reference for formating (see comment at the bottom
+                //sdf2.setTimeZone(TimeZone.getTimeZone("GMT+5")); // give a timezone reference for formating (see comment at the bottom
                 final String date2 = sdf2.format(dateformat);
+                final SimpleDateFormat sdf3 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"); // the format of your date
+                final String date3 = sdf3.format(dateformat);
                 sdf2 = new SimpleDateFormat("yyyy");
                 final String year = sdf2.format(dateformat);
                 sdf2 = new SimpleDateFormat("MM");
@@ -112,13 +115,20 @@ public class DisplayAct extends Activity {
                 final int trackid= rs.getInt(rs.getColumnIndex(TRACKINGS_COLUMN_NAME));
                 Cursor rs_2 = mydb.getRecord(trackid);
                 rs_2.moveToFirst();
-                int final_timestamp=rs_2.getInt(rs_2.getColumnIndex(DBhelper.ENDTIME_COLUMN_NAME));
-                int initial_timestamp=rs.getInt(rs.getColumnIndex(TRACKINGS_COLUMN_NAME));
-                int length_int = final_timestamp - initial_timestamp;
+                final int final_timestamp=rs_2.getInt(rs_2.getColumnIndex(DBhelper.ENDTIME_COLUMN_NAME));
+                final int initial_timestamp=rs.getInt(rs.getColumnIndex(TRACKINGS_COLUMN_NAME));
+                final int length_int = final_timestamp - initial_timestamp;
                 int hours = length_int/3600;
                 int minutes = ((length_int-(hours*3600))/60);
                 int seconds = (length_int-(hours*3600) -minutes*60);
                 String length= String.valueOf(hours) + ":"+ String.valueOf(minutes) + ":" + String.valueOf(seconds);
+
+
+                final String total_distance = rs_2.getString(rs_2.getColumnIndex(DBhelper.DISTANCE_COLUMN_NAME));
+                final String total_calories = rs_2.getString(rs_2.getColumnIndex(DBhelper.CAL_COLUMN_NAME));
+                final String avg_hr = rs_2.getString(rs_2.getColumnIndex(DBhelper.AVGHR_COLUMN_NAME));
+
+
                 if (!rs.isClosed())  {
                     rs.close();
                 }
@@ -162,7 +172,6 @@ public class DisplayAct extends Activity {
                             writer.println("  <trkseg>");
                             ArrayList<Point> points = mydb.getPoints(trackid);
 
-                            int j=0;
                             for(Point p : points)
                             {
                                 Date dateformatpoint = new Date(p.getTimestamp() * 1000L);
@@ -196,7 +205,7 @@ public class DisplayAct extends Activity {
                             writer.println("  </trkseg>");
                             writer.println(" </trk>");
                             writer.println("</gpx>");
-                        writer.close();
+                            writer.close();
                             donex.setText(getString(R.string.Exported));
                             donex.setFocusable(false);
                             donex.setClickable(false);
@@ -212,9 +221,84 @@ public class DisplayAct extends Activity {
 
                     }
                 });
+
+                // TCX Export
+                Button exportTcx = (Button) findViewById(R.id.exporttcxbutton);
+                exportTcx.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        try
+                        {
+                            ArrayList<Point> points = mydb.getPoints(trackid);
+
+                            int maxhr = 0;
+                            for (Point p : points) {
+                                if (p.hr > maxhr)
+                                    maxhr = p.hr;
+                            }
+
+                            PrintWriter writer = new PrintWriter(Environment.getExternalStorageDirectory().getPath() +"/Amazfit_Exporter/"+date2+".tcx", "UTF-8");
+
+                            writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+                            writer.println("<TrainingCenterDatabase xsi:schemaLocation=\"http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 http://www.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd\" xmlns:ns5=\"http://www.garmin.com/xmlschemas/ActivityGoals/v1\" xmlns:ns3=\"http://www.garmin.com/xmlschemas/ActivityExtension/v2\" xmlns:ns2=\"http://www.garmin.com/xmlschemas/UserProfile/v2\" xmlns=\"http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:ns4=\"http://www.garmin.com/xmlschemas/ProfileExtension/v1\">");
+                            writer.println("<Activities>");
+                            writer.println("    <Activity Sport=\"" + activity + "\">");
+                            writer.println("    <Id>" + date3 + "</Id>");
+                            writer.println("    <Lap StartTime=\"" + date3 + "\">");
+                            writer.println("        <TotalTimeSeconds>" + length_int + "</TotalTimeSeconds>");
+                            writer.println("        <DistanceMeters>" + total_distance + "</DistanceMeters>");
+                            //writer.println("        <MaximumSpeed></MaximumSpeed>");
+                            writer.println("        <Calories>" + total_calories + "</Calories>");
+                            writer.println("        <AverageHeartRateBpm><Value>" + avg_hr + "</Value></AverageHeartRateBpm>");
+                            writer.println("        <MaximumHeartRateBpm><Value>" + maxhr + "</Value></MaximumHeartRateBpm>");
+                            writer.println("        <Intensity>Active</Intensity>");
+                            writer.println("        <TriggerMethod>Manual</TriggerMethod>");
+                            writer.println("        <Track>");
+                            for (Point p : points)
+                            {
+                                Date time = new Date(p.getTimestamp() * 1000L);
+                                String timeStr = sdf3.format(time);
+
+                                writer.println("            <Trackpoint>");
+                                writer.println("                <Time>" + timeStr + "</Time>");
+                                //writer.println("                <DistanceMeters>" + p.getDist() + "</DistanceMeters>");
+                                writer.println("                <Position>");
+                                writer.println("                    <LatitudeDegrees>" + p.getLat() / 100000000.0 +  "</LatitudeDegrees>");
+                                writer.println("                    <LongitudeDegrees>" + p.getLon() / 100000000.0 + "</LongitudeDegrees>");
+                                writer.println("                </Position>");
+                                if(p.getAlt() != -200000.0)
+                                    writer.println("                <AltitudeMeters>" + p.getAlt()/10.0 + "</AltitudeMeters>");
+                                if (p.isHasHR())
+                                    writer.println("                <HeartRateBpm><Value>" + p.getHr() + "</Value></HeartRateBpm>");
+                                writer.println("            </Trackpoint>");
+                            }
+
+
+                            writer.println("        </Track></Lap></Activity></Activities></TrainingCenterDatabase>");
+                            writer.close();
+
+
+
+                            donex.setText(getString(R.string.Exported));
+                            donex.setFocusable(false);
+                            donex.setClickable(false);
+                            donex.setVisibility(View.VISIBLE);
+                            donexpath.setText((CharSequence)Environment.getExternalStorageDirectory().getPath() +"/Amazfit_Exporter/");
+                            donexpath.setFocusable(false);
+                            donexpath.setClickable(false);
+                            donexpath.setVisibility(View.VISIBLE);
+                        } catch (IOException e) {
+                            Toast.makeText(v.getContext(), e.toString(), Toast.LENGTH_LONG).show();
+                        }
+
+
+                    }
+                });
+
             }
         }
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -240,5 +324,10 @@ public class DisplayAct extends Activity {
             int Value = extras.getInt("id");
 
         }
+    }
+
+    public void ExportTcxClick(View view)
+    {
+        Toast.makeText(this, "!!!", Toast.LENGTH_LONG).show();
     }
 }
