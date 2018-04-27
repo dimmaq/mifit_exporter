@@ -119,29 +119,62 @@ public class DBhelper extends SQLiteOpenHelper {
 
         String[] hrstrings = hrdata.split(";");
         int[] hrs = new int[size];
-        boolean[] hasHrs = new boolean[size];
-        int hr_cur = 0;
-        for(int i = 0; i < hrstrings.length && hr_cur < size; i++) {
-            String hr_subs[]= hrstrings[i].split(",");
-            int hrValue = Integer.parseInt(hr_subs[1]);
-            int shift = 1;
-            if(hr_subs[0].length() > 0)
-                shift = Integer.parseInt(hr_subs[0]);
-            if(i == 0) {
-                hrs[0] = hrValue;
-                hasHrs[0] = false;
-                hr_cur++;
-                shift--;
+        boolean[] hasHrs= new boolean[size];
+        if (hrstrings.length > size ) {
+            ArrayList <Integer> hrList = new ArrayList <>();
+            int hrVal = 0;
+            for (int i = 0; i < hrstrings.length; i++) {
+                String hr_subs[] = hrstrings[i].split(",");
+                int hrDif = Integer.parseInt(hr_subs[1]);
+                int shift = 1;
+                if (hr_subs[0].length() > 0)
+                    shift = Integer.parseInt(hr_subs[0]);
+                if (i == 0)
+                    hrVal = hrDif;
+                else
+                    hrVal = hrVal + hrDif;
+
+                do {
+                    hrList.add(hrVal);
+                    shift--;
+                } while (shift > 0);
             }
-            for (int j = 1; j < shift && hr_cur < size; j++) {
-                hrs[hr_cur] = hrs[hr_cur - 1];
-                hasHrs[hr_cur] = false;
-                hr_cur++;
+            for(int i = 0; i < size; i++) {
+                int hrIdx = Math.round(((hrList.size() / size) * (i + 1)) - 1);
+                if (hrIdx >= hrList.size())
+                    hrIdx = hrList.size();
+                else if (hrIdx < 0)
+                    hrIdx = 0;
+
+                hrs[i] = hrList.get(hrIdx);
+                hasHrs[i] = true;
             }
-            if(i != 0 && hr_cur < size) {
-                hrs[hr_cur] = hrs[hr_cur - 1] + hrValue;
-                hasHrs[hr_cur] = true;
-                hr_cur++;
+
+
+        } else {
+            int hr_cur = 0;
+            for (int i = 0; i < hrstrings.length && hr_cur < size; i++) {
+                String hr_subs[] = hrstrings[i].split(",");
+                int hrValue = Integer.parseInt(hr_subs[1]);
+                int shift = 1;
+                if (hr_subs[0].length() > 0)
+                    shift = Integer.parseInt(hr_subs[0]);
+                if (i == 0) {
+                    hrs[0] = hrValue;
+                    hasHrs[0] = false;
+                    hr_cur++;
+                    shift--;
+                }
+                for (int j = 1; j < shift && hr_cur < size; j++) {
+                    hrs[hr_cur] = hrs[hr_cur - 1];
+                    hasHrs[hr_cur] = false;
+                    hr_cur++;
+                }
+                if (i != 0 && hr_cur < size) {
+                    hrs[hr_cur] = hrs[hr_cur - 1] + hrValue;
+                    hasHrs[hr_cur] = true;
+                    hr_cur++;
+                }
             }
         }
 
