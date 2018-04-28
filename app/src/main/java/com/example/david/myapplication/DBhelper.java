@@ -142,14 +142,15 @@ public class DBhelper extends SQLiteOpenHelper {
                     shift--;
                 } while (shift > 0);
             }
+            double k = (double)hrList.size() / (double)size;
             for(int i = 0; i < size; i++) {
-                int hrIdx = Math.round(((hrList.size() / size) * (i + 1)) - 1);
+                long hrIdx = Math.round((k * (i + 1)) - 1);
                 if (hrIdx >= hrList.size())
                     hrIdx = hrList.size();
                 else if (hrIdx < 0)
                     hrIdx = 0;
 
-                hrs[i] = hrList.get(hrIdx);
+                hrs[i] = hrList.get((int)hrIdx);
                 hasHrs[i] = true;
             }
 
