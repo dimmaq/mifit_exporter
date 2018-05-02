@@ -124,8 +124,8 @@ public class DisplayAct extends Activity {
                 String length= String.valueOf(hours) + ":"+ String.valueOf(minutes) + ":" + String.valueOf(seconds);
 
 
-                final String total_distance = rs_2.getString(rs_2.getColumnIndex(DBhelper.DISTANCE_COLUMN_NAME));
-                final String total_calories = rs_2.getString(rs_2.getColumnIndex(DBhelper.CAL_COLUMN_NAME));
+                final int total_distance = rs_2.getInt(rs_2.getColumnIndex(DBhelper.DISTANCE_COLUMN_NAME));
+                final int total_calories = rs_2.getInt(rs_2.getColumnIndex(DBhelper.CAL_COLUMN_NAME));
                 final String avg_hr = rs_2.getString(rs_2.getColumnIndex(DBhelper.AVGHR_COLUMN_NAME));
 
 
@@ -277,6 +277,61 @@ public class DisplayAct extends Activity {
                             writer.println("        </Track></Lap></Activity></Activities></TrainingCenterDatabase>");
                             writer.close();
 
+
+                            //----------------------------------------------------------------------------------
+
+                            ArrayList<Lap> laps = mydb.getLaps(trackid, total_distance, points);
+
+                            writer = new PrintWriter(Environment.getExternalStorageDirectory().getPath() +"/Amazfit_Exporter/"+date2+"_laps.tcx", "UTF-8");
+
+                            writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+                            writer.println("<TrainingCenterDatabase xsi:schemaLocation=\"http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 http://www.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd\" xmlns:ns5=\"http://www.garmin.com/xmlschemas/ActivityGoals/v1\" xmlns:ns3=\"http://www.garmin.com/xmlschemas/ActivityExtension/v2\" xmlns:ns2=\"http://www.garmin.com/xmlschemas/UserProfile/v2\" xmlns=\"http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:ns4=\"http://www.garmin.com/xmlschemas/ProfileExtension/v1\">");
+                            writer.println("<Activities>");
+                            writer.println("    <Activity Sport=\"" + activity + "\">");
+                            writer.println("    <Id>" + date3 + "</Id>");
+                            for (int i = 0; i < laps.size(); i++) {
+                                Lap lap = laps.get(i);
+
+                                Date startTime = new Date(lap.getStartTime()*1000L);
+                                String startTimeStr = sdf3.format(startTime);
+                                int calories = (int) Math.round((double) total_calories / total_distance * lap.getDist());
+
+                                writer.println("    <Lap StartTime=\"" + startTimeStr + "\">");
+                                writer.println("        <TotalTimeSeconds>" + lap.getTime() + "</TotalTimeSeconds>");
+                                writer.println("        <DistanceMeters>" + lap.getDist() + "</DistanceMeters>");
+                                //writer.println("        <MaximumSpeed></MaximumSpeed>");
+                                writer.println("        <Calories>" + calories + "</Calories>");
+                                writer.println("        <AverageHeartRateBpm><Value>" + lap.getAvgHr() + "</Value></AverageHeartRateBpm>");
+                                writer.println("        <MaximumHeartRateBpm><Value>" + lap.getMaxHr() + "</Value></MaximumHeartRateBpm>");
+                                writer.println("        <Intensity>Active</Intensity>");
+                                writer.println("        <Cadence>" + lap.getCadence() + "</Cadence>");
+                                writer.println("        <TriggerMethod>Distance</TriggerMethod>"); // Manual
+                                writer.println("        <Track>");
+                                for (Point p : lap.getPoints())
+                                {
+                                    Date time = new Date(p.getTimestamp() * 1000L);
+                                    String timeStr = sdf3.format(time);
+
+                                    writer.println("            <Trackpoint>");
+                                    writer.println("                <Time>" + timeStr + "</Time>");
+                                    //writer.println("                <DistanceMeters>" + p.getDist() + "</DistanceMeters>");
+                                    writer.println("                <Position>");
+                                    writer.println("                    <LatitudeDegrees>" + p.getLat() / 100000000.0 +  "</LatitudeDegrees>");
+                                    writer.println("                    <LongitudeDegrees>" + p.getLon() / 100000000.0 + "</LongitudeDegrees>");
+                                    writer.println("                </Position>");
+                                    if(p.getAlt() != -200000.0)
+                                        writer.println("                <AltitudeMeters>" + p.getAlt()/10.0 + "</AltitudeMeters>");
+                                    if (p.isHasHR())
+                                        writer.println("                <HeartRateBpm><Value>" + p.getHr() + "</Value></HeartRateBpm>");
+                                    writer.println("                <Cadence>" + p.getCadence() + "</Cadence>");
+                                    writer.println("            </Trackpoint>");
+                                }
+
+
+                                writer.println("        </Track></Lap>");
+                            }
+                            writer.println("</Activity></Activities></TrainingCenterDatabase>");
+                            writer.close();
 
 
                             donex.setText(getString(R.string.Exported));

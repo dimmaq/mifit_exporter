@@ -62,6 +62,104 @@ public class DBhelper extends SQLiteOpenHelper {
         return numRows;
     }
 
+    public ArrayList<Lap> getLaps(int trackid, int totalDistance, ArrayList<Point> points) {
+        int points_count = points.size();
+        ArrayList<Lap> laps_list = new ArrayList<Lap>();
+        Cursor res =  db.rawQuery( "select * from TRACKDATA where TRACKID="+trackid+"", null );
+        res.moveToFirst();
+        //String pacedata = res.getString(res.getColumnIndex("BULKPACE")); // it's speed, but what? 0.72;0.72;0.51;0.47;0.47;0.47
+        String lapsdata = res.getString(res.getColumnIndex("KILOMARKED")); // №,lapTime,geohash,gpsidx,aveHr,currentTime;....
+
+        /*
+        It's speed.
+        String[] pacestrs = pacedata.split(";");
+        if (pacestrs.length != points_count)
+            return null;
+        for(int i = 0; i < points_count; i++) {
+
+        }
+        */
+
+
+
+        int startTime = trackid;
+        String[] lapsstrings = lapsdata.split(";");
+        int pointIdx = 0;
+        for(int i = 0; i < lapsstrings.length; i++) {
+            String[] lapdat = lapsstrings[i].split(",");
+            if (lapdat.length < 6)
+                return null;
+            // №,lapTime,geohash,gpsidx,aveHr,currentTime
+            int allTime = Integer.parseInt(lapdat[5]) + trackid; // currentTime
+            int time = Integer.parseInt(lapdat[1]); // lapTime
+            int dist = 1000; // 1km
+            int maxSpeed = 0;
+            int avgHr = Integer.parseInt(lapdat[4]);
+            int maxHr = 0;
+            int cadence = 0;
+            int cadenceSum = 0;
+            ArrayList<Point> lapPoints = new ArrayList<>();
+
+            // append points
+            for (int j = pointIdx; j < points_count; j++) {
+                Point point = points.get(j);
+                // point in lap
+                if (point.getTimestamp() < allTime) {
+                    // HR
+                    int hr = point.getHr();
+                    if (hr > maxHr)
+                        maxHr = hr;
+                    // CAdence
+                    cadenceSum = cadenceSum + point.getCadence();
+                    // first lap point
+                    if (lapPoints.size() == 0)
+                        point.setLapStart(true);
+                    lapPoints.add(point);
+                    pointIdx = j + 1;
+                } else {
+                    // next lap
+                    pointIdx = j;
+                    break;
+                }
+            }
+
+            // avg cadence
+            cadence = (int) Math.round((double)cadenceSum / lapPoints.size());
+            laps_list.add(new Lap(startTime, time, dist, maxSpeed, avgHr, maxHr, cadence, lapPoints));
+            startTime = allTime;
+        }
+
+        // last points to last lap
+        if (pointIdx < points_count) {
+            int time = points.get(points_count - 1).getTimestamp() - points.get(pointIdx-1).getTimestamp();
+            int dist = totalDistance - laps_list.size() * 1000;
+            int maxSpeed = 0;
+            int avgHr;
+            int hrSum = 0;
+            int maxHr = 0;
+            int cadence;
+            int cadenceSum = 0;
+            ArrayList < Point > lapPoints = new ArrayList<>();
+            for (int i = pointIdx; i < points_count; i++) {
+                Point p = points.get(i);
+                int hr = p.getHr();
+                hrSum = hrSum + hr;
+                if (maxHr < hr)
+                    maxHr = hr;
+                cadenceSum = cadenceSum + p.getCadence();
+                lapPoints.add(p);
+            }
+            avgHr = (int) Math.round((double) hrSum / lapPoints.size());
+            cadence = (int) Math.round((double) cadenceSum / lapPoints.size());
+
+            // last lap
+            if (lapPoints.size() > 0)
+                laps_list.add(new Lap(startTime, time, dist, maxSpeed, avgHr, maxHr, cadence, lapPoints));
+        }
+
+        return laps_list;
+    }
+
     public ArrayList<Point> getPoints(int trackid) {
         ArrayList<Point> points_list = new ArrayList<Point>();
         Cursor res =  db.rawQuery( "select * from TRACKDATA where TRACKID="+trackid+"", null );
@@ -70,6 +168,8 @@ public class DBhelper extends SQLiteOpenHelper {
         String altdata = res.getString(res.getColumnIndex("BULKAL"));
         String timedata = res.getString(res.getColumnIndex("BULKTIME"));
         String hrdata = res.getString(res.getColumnIndex("BULKHR"));
+        String gaitdata = res.getString(res.getColumnIndex("BULKGAIT")); // sec,XXX,XXX,cadens;....;....
+
 
         String[] timestrings = timedata.split(";");
         // int size = res.getInt(res.getColumnIndex("SIZE")); When data received from MiFit account, no Size is set in table
@@ -182,12 +282,68 @@ public class DBhelper extends SQLiteOpenHelper {
             }
         }
 
+        // cadence
+        String[] gaitstrings = gaitdata.split(";");
+        int cadenceArrLen = gaitstrings.length;
+        int[] cadenceTimes = new int[cadenceArrLen];
+        int[] cadenceVals = new int[cadenceArrLen];
+        for(int i = 0; i < gaitstrings.length; i++) {
+            String[] gaitstrs = gaitstrings[i].split(",");
+            if (gaitstrs.length < 4)
+                return null;
+            cadenceVals[i] = Integer.parseInt(gaitstrs[3]);
+            int time = Integer.parseInt(gaitstrs[0]);
+            if (i == 0) {
+                cadenceTimes[0] = time + trackid;
+            } else {
+                cadenceTimes[i] = cadenceTimes[i-1] + time;
+            }
+        }
+        // fill zero
+        int cadval = 0;
+        for (int i = cadenceArrLen - 1; i >= 0; i--) {
+            if (cadenceVals[i] > 0)
+                cadval = cadenceVals[i];
+            else if (cadval > 0)
+                cadenceVals[i] = cadval;
+        }
+        // find avg
+        int[] cadences = new int[size];
+        int cadenceIdx = 0;
+        for(int i = 0; i < size; i++) {
+            int time = timestamps[i];
+            int cadSum = 0;
+            int cadCnt = 0;
+            for (int j = cadenceIdx; j < cadenceArrLen; j ++) {
+                if (cadenceTimes[j] > time) {
+                    cadenceIdx = j;
+                    break;
+                }
+                else {
+                    cadSum = cadSum + cadenceVals[j];
+                    cadCnt++;
+                }
+            }
+            if (cadCnt > 0)
+                cadences[i] = (int) Math.round((double)cadSum / cadCnt);
+        }
+        // fill zero
+        cadval = 0;
+        for (int i = size - 1; i >= 0; i--) {
+            if (cadences[i] > 0)
+                cadval = cadences[i];
+            else if (cadval > 0)
+                cadences[i] = cadval;
+        }
+
+
+
         for(int i = 0; i < size; i++) {
             if(hasHrs[i]) {
-                points_list.add(new Point(timestamps[i], lats[i], lons[i], alts[i], hrs[i]));
+                points_list.add(new Point(timestamps[i], lats[i], lons[i], alts[i], cadences[i], hrs[i]));
             }
             else {
-                points_list.add(new Point(timestamps[i], lats[i], lons[i], alts[i]));
+                points_list.add(new Point(timestamps[i], lats[i], lons[i], alts[i], cadences[i]));
             }
         }
 
